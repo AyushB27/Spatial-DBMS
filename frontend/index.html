@@ -1,0 +1,2394 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>TSEC Spatial Database</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f7fb;
+            color: #1f2937;
+        }
+
+        /* ==============================
+           NAVBAR
+        ============================== */
+
+        header {
+            height: 70px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 6%;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            width: 42px;
+            height: 42px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #2563eb;
+            color: white;
+
+            border-radius: 10px;
+
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .brand h2 {
+            font-size: 17px;
+        }
+
+        .brand p {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .connection {
+            background: #ecfdf5;
+            color: #15803d;
+
+            padding: 8px 14px;
+            border-radius: 20px;
+
+            font-size: 13px;
+        }
+
+        /* ==============================
+           LAYOUT
+        ============================== */
+
+        .app {
+            display: flex;
+            min-height: calc(100vh - 70px);
+        }
+
+        /* ==============================
+           SIDEBAR
+        ============================== */
+
+        .sidebar {
+            width: 230px;
+            background: white;
+            border-right: 1px solid #e5e7eb;
+
+            padding: 25px 15px;
+        }
+
+        .sidebar h4 {
+            color: #9ca3af;
+            font-size: 11px;
+            margin: 10px;
+            letter-spacing: 1px;
+        }
+
+        .nav-btn {
+            width: 100%;
+
+            border: none;
+            background: transparent;
+
+            padding: 12px;
+
+            margin-bottom: 5px;
+
+            text-align: left;
+
+            border-radius: 8px;
+
+            cursor: pointer;
+
+            font-size: 14px;
+        }
+
+        .nav-btn:hover,
+        .nav-btn.active {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        /* ==============================
+           MAIN CONTENT
+        ============================== */
+
+        main {
+            flex: 1;
+            padding: 35px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .page-title {
+            margin-bottom: 25px;
+        }
+
+        .page-title h1 {
+            font-size: 28px;
+        }
+
+        .page-title p {
+            margin-top: 7px;
+            color: #6b7280;
+        }
+
+        /* ==============================
+           STATISTICS
+        ============================== */
+
+        .stats {
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 18px;
+
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+
+            padding: 22px;
+
+            border-radius: 12px;
+
+            border:
+                1px solid #e5e7eb;
+        }
+
+        .stat-card p {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .stat-card h2 {
+            margin-top: 8px;
+            font-size: 28px;
+        }
+
+        /* ==============================
+           CARDS
+        ============================== */
+
+        .card {
+            background: white;
+
+            border:
+                1px solid #e5e7eb;
+
+            border-radius: 14px;
+
+            padding: 25px;
+
+            margin-bottom: 25px;
+        }
+
+        .card h2 {
+            margin-bottom: 20px;
+        }
+
+        /* ==============================
+           FORMS
+        ============================== */
+
+        .form-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 18px;
+        }
+
+        .full {
+            grid-column: span 2;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        input,
+        select,
+        textarea {
+            padding: 11px;
+
+            border:
+                1px solid #d1d5db;
+
+            border-radius: 7px;
+
+            font-size: 14px;
+
+            outline: none;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #2563eb;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* ==============================
+           BUTTONS
+        ============================== */
+
+        button.primary {
+            border: none;
+
+            background: #2563eb;
+            color: white;
+
+            padding: 11px 18px;
+
+            border-radius: 7px;
+
+            cursor: pointer;
+
+            font-size: 14px;
+        }
+
+        button.primary:hover {
+            background: #1d4ed8;
+        }
+
+        button.danger {
+            border: none;
+
+            background: #fee2e2;
+            color: #dc2626;
+
+            padding: 7px 10px;
+
+            border-radius: 6px;
+
+            cursor: pointer;
+        }
+
+        /* ==============================
+           TABLES
+        ============================== */
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f8fafc;
+        }
+
+        th,
+        td {
+            padding: 13px;
+            text-align: left;
+
+            border-bottom:
+                1px solid #e5e7eb;
+
+            font-size: 13px;
+        }
+
+        /* ==============================
+           QUERY BUTTONS
+        ============================== */
+
+        .query-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 15px;
+        }
+
+        .query-btn {
+            padding: 18px;
+
+            text-align: left;
+
+            background: white;
+
+            border:
+                1px solid #e5e7eb;
+
+            border-radius: 10px;
+
+            cursor: pointer;
+        }
+
+        .query-btn:hover {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .query-btn strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .query-btn span {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        /* ==============================
+           RESULT AREA
+        ============================== */
+
+        #queryResult {
+            margin-top: 25px;
+        }
+
+        /* ==============================
+           MESSAGE
+        ============================== */
+
+        #message {
+            position: fixed;
+
+            top: 85px;
+            right: 25px;
+
+            padding: 14px 20px;
+
+            border-radius: 8px;
+
+            color: white;
+
+            display: none;
+
+            z-index: 100;
+        }
+
+        .success {
+            background: #16a34a;
+        }
+
+        .error {
+            background: #dc2626;
+        }
+
+        /* ==============================
+           RESPONSIVE
+        ============================== */
+
+        @media (max-width: 900px) {
+
+            .sidebar {
+                width: 180px;
+            }
+
+            .stats {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+            .form-grid,
+            .query-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full {
+                grid-column: span 1;
+            }
+
+        }
+
+        @media (max-width: 650px) {
+
+            .app {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                display: flex;
+                overflow-x: auto;
+                padding: 10px;
+            }
+
+            .sidebar h4 {
+                display: none;
+            }
+
+            .nav-btn {
+                white-space: nowrap;
+            }
+
+            main {
+                padding: 20px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .connection {
+                display: none;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+    <div class="brand">
+
+        <div class="logo">
+            T
+        </div>
+
+        <div>
+
+            <h2>TSEC Spatial DB</h2>
+
+            <p>
+                Campus Information System
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="connection">
+
+        ● MySQL Connected
+
+    </div>
+
+</header>
+
+
+<div id="message"></div>
+
+
+<div class="app">
+
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <h4>DATABASE</h4>
+
+        <button
+            class="nav-btn active"
+            onclick="showPage('dashboard', this)"
+        >
+            📊 Dashboard
+        </button>
+
+
+        <button
+            class="nav-btn"
+            onclick="showPage('buildings', this)"
+        >
+            🏢 Buildings
+        </button>
+
+
+        <button
+            class="nav-btn"
+            onclick="showPage('pois', this)"
+        >
+            📍 Points of Interest
+        </button>
+
+
+        <button
+            class="nav-btn"
+            onclick="showPage('paths', this)"
+        >
+            🛣️ Paths
+        </button>
+
+
+        <h4>ANALYSIS</h4>
+
+
+        <button
+            class="nav-btn"
+            onclick="showPage('queries', this)"
+        >
+            🔍 Spatial Queries
+        </button>
+
+    </aside>
+
+
+
+    <!-- MAIN -->
+
+    <main>
+
+
+        <!-- =========================
+             DASHBOARD
+        ========================== -->
+
+        <section
+            id="dashboard"
+            class="page active"
+        >
+
+            <div class="page-title">
+
+                <h1>Dashboard</h1>
+
+                <p>
+                    Overview of the TSEC Campus Spatial Database.
+                </p>
+
+            </div>
+
+
+            <div class="stats">
+
+                <div class="stat-card">
+
+                    <p>Total Buildings</p>
+
+                    <h2 id="buildingCount">
+                        0
+                    </h2>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <p>Total POIs</p>
+
+                    <h2 id="poiCount">
+                        0
+                    </h2>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <p>Laboratories</p>
+
+                    <h2 id="labCount">
+                        0
+                    </h2>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <p>Restrooms</p>
+
+                    <h2 id="restroomCount">
+                        0
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <h2>Category Statistics</h2>
+
+                <div
+                    class="table-container"
+                >
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Category
+                                </th>
+
+                                <th>
+                                    Total
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody
+                            id="categoryStats"
+                        >
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             BUILDINGS
+        ========================== -->
+
+        <section
+            id="buildings"
+            class="page"
+        >
+
+            <div class="page-title">
+
+                <h1>Buildings</h1>
+
+                <p>
+                    Add and manage building spatial boundaries.
+                </p>
+
+            </div>
+
+
+            <div class="card">
+
+                <h2>Add Building</h2>
+
+
+                <form
+                    id="buildingForm"
+                >
+
+                    <div class="form-grid">
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Building Name
+                            </label>
+
+                            <input
+                                type="text"
+                                id="buildingName"
+                                required
+                                maxlength="100"
+                                placeholder="Example: OLD BUILDING"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Building Code
+                            </label>
+
+                            <input
+                                type="text"
+                                id="buildingCode"
+                                required
+                                maxlength="10"
+                                placeholder="Example: OLD"
+                            >
+
+                        </div>
+
+
+                        <div
+                            class="form-group full"
+                        >
+
+                            <label>
+                                Polygon Coordinates
+                            </label>
+
+                            <textarea
+                                id="buildingCoordinates"
+                                required
+                                placeholder="72.8480 19.1200, 72.8485 19.1200, 72.8485 19.1205, 72.8480 19.1205"
+                            ></textarea>
+
+                        </div>
+
+                    </div>
+
+
+                    <br>
+
+
+                    <button
+                        type="submit"
+                        class="primary"
+                    >
+
+                        Add Building
+
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <div class="card">
+
+                <h2>Building Records</h2>
+
+
+                <div
+                    class="table-container"
+                >
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>ID</th>
+
+                                <th>Name</th>
+
+                                <th>Code</th>
+
+                                <th>Footprint</th>
+
+                                <th>Action</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody
+                            id="buildingTable"
+                        >
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             POIs
+        ========================== -->
+
+        <section
+            id="pois"
+            class="page"
+        >
+
+            <div class="page-title">
+
+                <h1>Points of Interest</h1>
+
+                <p>
+                    Add campus locations using POINT spatial data.
+                </p>
+
+            </div>
+
+
+            <div class="card">
+
+                <h2>Add Point of Interest</h2>
+
+
+                <form
+                    id="poiForm"
+                >
+
+                    <div class="form-grid">
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Location Name
+                            </label>
+
+                            <input
+                                type="text"
+                                id="poiName"
+                                required
+                                maxlength="100"
+                                placeholder="Example: LAB 1001"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Category
+                            </label>
+
+                            <select
+                                id="poiCategory"
+                                required
+                            >
+
+                                <option value="">
+                                    Select Category
+                                </option>
+
+                                <option value="Lab">
+                                    Lab
+                                </option>
+
+                                <option value="Classroom">
+                                    Classroom
+                                </option>
+
+                                <option value="Restroom">
+                                    Restroom
+                                </option>
+
+                                <option value="Library">
+                                    Library
+                                </option>
+
+                                <option value="Office">
+                                    Office
+                                </option>
+
+                                <option value="Other">
+                                    Other
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Building
+                            </label>
+
+                            <select
+                                id="poiBuilding"
+                                required
+                            >
+
+                                <option value="">
+                                    Select Building
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Longitude (X)
+                            </label>
+
+                            <input
+                                type="number"
+                                id="longitude"
+                                required
+                                step="any"
+                                min="-180"
+                                max="180"
+                                placeholder="72.8473"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Latitude (Y)
+                            </label>
+
+                            <input
+                                type="number"
+                                id="latitude"
+                                required
+                                step="any"
+                                min="-90"
+                                max="90"
+                                placeholder="19.1193"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <br>
+
+
+                    <button
+                        type="submit"
+                        class="primary"
+                    >
+
+                        Add Location
+
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <div class="card">
+
+                <h2>POI Records</h2>
+
+
+                <div
+                    class="table-container"
+                >
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>ID</th>
+
+                                <th>Name</th>
+
+                                <th>Category</th>
+
+                                <th>Building</th>
+
+                                <th>Longitude</th>
+
+                                <th>Latitude</th>
+
+                                <th>Action</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody
+                            id="poiTable"
+                        >
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             PATHS
+        ========================== -->
+
+        <section
+            id="paths"
+            class="page"
+        >
+
+            <div class="page-title">
+
+                <h1>Paths</h1>
+
+                <p>
+                    Add corridors and paths using LINESTRING spatial data.
+                </p>
+
+            </div>
+
+
+            <div class="card">
+
+                <h2>Add Path</h2>
+
+
+                <form
+                    id="pathForm"
+                >
+
+                    <div class="form-grid">
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Path Name
+                            </label>
+
+                            <input
+                                type="text"
+                                id="pathName"
+                                required
+                                maxlength="100"
+                                placeholder="Example: Main Corridor"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Associated Building
+                            </label>
+
+                            <select
+                                id="pathBuilding"
+                                required
+                            >
+
+                                <option value="">
+                                    Select Building
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div
+                            class="form-group full"
+                        >
+
+                            <label>
+                                LINESTRING Coordinates
+                            </label>
+
+                            <textarea
+                                id="pathCoordinates"
+                                required
+                                placeholder="72.8471 19.1191, 72.8473 19.1193"
+                            ></textarea>
+
+                        </div>
+
+                    </div>
+
+
+                    <br>
+
+
+                    <button
+                        type="submit"
+                        class="primary"
+                    >
+
+                        Add Path
+
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <div class="card">
+
+                <h2>Path Records</h2>
+
+
+                <div
+                    class="table-container"
+                >
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>ID</th>
+
+                                <th>Name</th>
+
+                                <th>Building</th>
+
+                                <th>Path Coordinates</th>
+
+                                <th>Action</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody
+                            id="pathTable"
+                        >
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             QUERIES
+        ========================== -->
+
+        <section
+            id="queries"
+            class="page"
+        >
+
+            <div class="page-title">
+
+                <h1>Spatial Queries</h1>
+
+                <p>
+                    Execute SQL and spatial analysis queries.
+                </p>
+
+            </div>
+
+
+            <div class="query-grid">
+
+
+                <button
+                    class="query-btn"
+                    onclick="runQuery('category-count')"
+                >
+
+                    <strong>
+                        1. Category Count
+                    </strong>
+
+                    <span>
+                        Count POIs in every category.
+                    </span>
+
+                </button>
+
+
+                <button
+                    class="query-btn"
+                    onclick="runQuery('restrooms')"
+                >
+
+                    <strong>
+                        2. Find Restrooms
+                    </strong>
+
+                    <span>
+                        Show restrooms with latitude and longitude.
+                    </span>
+
+                </button>
+
+
+                <button
+                    class="query-btn"
+                    onclick="queryByBuilding()"
+                >
+
+                    <strong>
+                        3. POIs by Building
+                    </strong>
+
+                    <span>
+                        Find locations belonging to a building.
+                    </span>
+
+                </button>
+
+
+                <button
+                    class="query-btn"
+                    onclick="runQuery('inside-buildings')"
+                >
+
+                    <strong>
+                        4. POIs Inside Buildings
+                    </strong>
+
+                    <span>
+                        Use ST_Contains() to check building boundaries.
+                    </span>
+
+                </button>
+
+
+                <button
+                    class="query-btn"
+                    onclick="runQuery('near-paths')"
+                >
+
+                    <strong>
+                        5. POIs Near Paths
+                    </strong>
+
+                    <span>
+                        Use ST_Distance() to find nearby locations.
+                    </span>
+
+                </button>
+
+
+            </div>
+
+
+            <div class="card">
+
+                <h2>Query Result</h2>
+
+                <div
+                    id="queryResult"
+                >
+
+                    Click a query to view results.
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+</div>
+
+
+
+<script>
+
+const API = "http://localhost:5000/api";
+
+
+/* ==========================================
+   NAVIGATION
+========================================== */
+
+function showPage(pageId, button) {
+
+    document
+        .querySelectorAll(".page")
+        .forEach(page => {
+
+            page.classList
+                .remove("active");
+
+        });
+
+
+    document
+        .getElementById(pageId)
+        .classList
+        .add("active");
+
+
+    document
+        .querySelectorAll(".nav-btn")
+        .forEach(btn => {
+
+            btn.classList
+                .remove("active");
+
+        });
+
+
+    button.classList
+        .add("active");
+
+
+    if (pageId === "dashboard") {
+        loadStats();
+    }
+
+    if (pageId === "buildings") {
+        loadBuildings();
+    }
+
+    if (pageId === "pois") {
+        loadPOIs();
+        loadBuildingDropdowns();
+    }
+
+    if (pageId === "paths") {
+        loadPaths();
+        loadBuildingDropdowns();
+    }
+
+}
+
+
+/* ==========================================
+   MESSAGE
+========================================== */
+
+function showMessage(text, type = "success") {
+
+    const message =
+        document.getElementById("message");
+
+    message.textContent = text;
+
+    message.className = type;
+
+    message.style.display = "block";
+
+
+    setTimeout(() => {
+
+        message.style.display = "none";
+
+    }, 3000);
+
+}
+
+
+/* ==========================================
+   LOAD STATISTICS
+========================================== */
+
+async function loadStats() {
+
+    try {
+
+        const response =
+            await fetch(`${API}/stats`);
+
+        const data =
+            await response.json();
+
+
+        document
+            .getElementById("buildingCount")
+            .textContent =
+            data.buildings;
+
+
+        document
+            .getElementById("poiCount")
+            .textContent =
+            data.pois;
+
+
+        let labs = 0;
+        let restrooms = 0;
+
+
+        const statsBody =
+            document.getElementById(
+                "categoryStats"
+            );
+
+
+        statsBody.innerHTML = "";
+
+
+        data.categories.forEach(item => {
+
+            if (item.category === "Lab") {
+                labs = item.total;
+            }
+
+            if (
+                item.category === "Restroom"
+            ) {
+                restrooms = item.total;
+            }
+
+
+            statsBody.innerHTML += `
+
+                <tr>
+
+                    <td>
+                        ${item.category}
+                    </td>
+
+                    <td>
+                        ${item.total}
+                    </td>
+
+                </tr>
+
+            `;
+
+        });
+
+
+        document
+            .getElementById("labCount")
+            .textContent =
+            labs;
+
+
+        document
+            .getElementById("restroomCount")
+            .textContent =
+            restrooms;
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+    }
+
+}
+
+
+/* ==========================================
+   BUILDINGS
+========================================== */
+
+document
+    .getElementById("buildingForm")
+    .addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const name =
+                document
+                    .getElementById(
+                        "buildingName"
+                    )
+                    .value;
+
+
+            const code =
+                document
+                    .getElementById(
+                        "buildingCode"
+                    )
+                    .value;
+
+
+            const coordinates =
+                document
+                    .getElementById(
+                        "buildingCoordinates"
+                    )
+                    .value;
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API}/buildings`,
+                        {
+
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify({
+
+                                    name,
+
+                                    code,
+
+                                    coordinates
+
+                                })
+
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.error
+                    );
+
+                }
+
+
+                showMessage(
+                    "Building added successfully"
+                );
+
+
+                this.reset();
+
+
+                loadBuildings();
+                loadBuildingDropdowns();
+                loadStats();
+
+            }
+
+            catch (error) {
+
+                showMessage(
+                    error.message,
+                    "error"
+                );
+
+            }
+
+        }
+    );
+
+
+async function loadBuildings() {
+
+    const response =
+        await fetch(`${API}/buildings`);
+
+    const buildings =
+        await response.json();
+
+
+    const table =
+        document.getElementById(
+            "buildingTable"
+        );
+
+
+    table.innerHTML = "";
+
+
+    buildings.forEach(building => {
+
+        table.innerHTML += `
+
+            <tr>
+
+                <td>
+                    ${building.building_id}
+                </td>
+
+                <td>
+                    ${building.name}
+                </td>
+
+                <td>
+                    ${building.code}
+                </td>
+
+                <td>
+                    ${building.footprint}
+                </td>
+
+                <td>
+
+                    <button
+                        class="danger"
+                        onclick="
+                            deleteBuilding(
+                                ${building.building_id}
+                            )
+                        "
+                    >
+
+                        Delete
+
+                    </button>
+
+                </td>
+
+            </tr>
+
+        `;
+
+    });
+
+}
+
+
+async function deleteBuilding(id) {
+
+    if (
+        !confirm(
+            "Delete this building?"
+        )
+    ) {
+        return;
+    }
+
+
+    const response =
+        await fetch(
+            `${API}/buildings/${id}`,
+            {
+                method: "DELETE"
+            }
+        );
+
+
+    const data =
+        await response.json();
+
+
+    if (!response.ok) {
+
+        showMessage(
+            data.error,
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    showMessage(
+        data.message
+    );
+
+
+    loadBuildings();
+    loadBuildingDropdowns();
+    loadStats();
+
+}
+
+
+/* ==========================================
+   BUILDING DROPDOWNS
+========================================== */
+
+async function loadBuildingDropdowns() {
+
+    const response =
+        await fetch(`${API}/buildings`);
+
+    const buildings =
+        await response.json();
+
+
+    const poiSelect =
+        document.getElementById(
+            "poiBuilding"
+        );
+
+
+    const pathSelect =
+        document.getElementById(
+            "pathBuilding"
+        );
+
+
+    poiSelect.innerHTML =
+        `<option value="">
+            Select Building
+        </option>`;
+
+
+    pathSelect.innerHTML =
+        `<option value="">
+            Select Building
+        </option>`;
+
+
+    buildings.forEach(building => {
+
+        const option = `
+
+            <option
+                value="${building.building_id}"
+            >
+
+                ${building.name}
+                (${building.code})
+
+            </option>
+
+        `;
+
+
+        poiSelect.innerHTML += option;
+
+        pathSelect.innerHTML += option;
+
+    });
+
+}
+
+
+/* ==========================================
+   POINTS OF INTEREST
+========================================== */
+
+document
+    .getElementById("poiForm")
+    .addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const data = {
+
+                name:
+                    document
+                        .getElementById(
+                            "poiName"
+                        )
+                        .value,
+
+                category:
+                    document
+                        .getElementById(
+                            "poiCategory"
+                        )
+                        .value,
+
+                building_id:
+                    document
+                        .getElementById(
+                            "poiBuilding"
+                        )
+                        .value,
+
+                longitude:
+                    parseFloat(
+                        document
+                            .getElementById(
+                                "longitude"
+                            )
+                            .value
+                    ),
+
+                latitude:
+                    parseFloat(
+                        document
+                            .getElementById(
+                                "latitude"
+                            )
+                            .value
+                    )
+
+            };
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API}/pois`,
+                        {
+
+                            method:
+                                "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json"
+
+                            },
+
+                            body:
+                                JSON.stringify(data)
+
+                        }
+                    );
+
+
+                const result =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        result.error
+                    );
+
+                }
+
+
+                showMessage(
+                    "Location added successfully"
+                );
+
+
+                this.reset();
+
+
+                loadPOIs();
+                loadStats();
+
+            }
+
+            catch (error) {
+
+                showMessage(
+                    error.message,
+                    "error"
+                );
+
+            }
+
+        }
+    );
+
+
+async function loadPOIs() {
+
+    const response =
+        await fetch(`${API}/pois`);
+
+    const pois =
+        await response.json();
+
+
+    const table =
+        document.getElementById(
+            "poiTable"
+        );
+
+
+    table.innerHTML = "";
+
+
+    pois.forEach(poi => {
+
+        table.innerHTML += `
+
+            <tr>
+
+                <td>
+                    ${poi.poi_id}
+                </td>
+
+                <td>
+                    ${poi.name}
+                </td>
+
+                <td>
+                    ${poi.category}
+                </td>
+
+                <td>
+                    ${poi.building_name}
+                </td>
+
+                <td>
+                    ${poi.longitude}
+                </td>
+
+                <td>
+                    ${poi.latitude}
+                </td>
+
+                <td>
+
+                    <button
+                        class="danger"
+
+                        onclick="
+                            deletePOI(
+                                ${poi.poi_id}
+                            )
+                        "
+                    >
+
+                        Delete
+
+                    </button>
+
+                </td>
+
+            </tr>
+
+        `;
+
+    });
+
+}
+
+
+async function deletePOI(id) {
+
+    if (
+        !confirm(
+            "Delete this location?"
+        )
+    ) {
+        return;
+    }
+
+
+    await fetch(
+        `${API}/pois/${id}`,
+        {
+            method: "DELETE"
+        }
+    );
+
+
+    showMessage(
+        "Location deleted"
+    );
+
+
+    loadPOIs();
+    loadStats();
+
+}
+
+
+/* ==========================================
+   PATHS
+========================================== */
+
+document
+    .getElementById("pathForm")
+    .addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const data = {
+
+                name:
+                    document
+                        .getElementById(
+                            "pathName"
+                        )
+                        .value,
+
+                building_id:
+                    document
+                        .getElementById(
+                            "pathBuilding"
+                        )
+                        .value,
+
+                coordinates:
+                    document
+                        .getElementById(
+                            "pathCoordinates"
+                        )
+                        .value
+
+            };
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API}/paths`,
+                        {
+
+                            method:
+                                "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json"
+
+                            },
+
+                            body:
+                                JSON.stringify(data)
+
+                        }
+                    );
+
+
+                const result =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        result.error
+                    );
+
+                }
+
+
+                showMessage(
+                    "Path added successfully"
+                );
+
+
+                this.reset();
+
+
+                loadPaths();
+
+            }
+
+            catch (error) {
+
+                showMessage(
+                    error.message,
+                    "error"
+                );
+
+            }
+
+        }
+    );
+
+
+async function loadPaths() {
+
+    const response =
+        await fetch(`${API}/paths`);
+
+    const paths =
+        await response.json();
+
+
+    const table =
+        document.getElementById(
+            "pathTable"
+        );
+
+
+    table.innerHTML = "";
+
+
+    paths.forEach(path => {
+
+        table.innerHTML += `
+
+            <tr>
+
+                <td>
+                    ${path.path_id}
+                </td>
+
+                <td>
+                    ${path.name}
+                </td>
+
+                <td>
+                    ${path.building_name}
+                </td>
+
+                <td>
+                    ${path.path_line}
+                </td>
+
+                <td>
+
+                    <button
+                        class="danger"
+
+                        onclick="
+                            deletePath(
+                                ${path.path_id}
+                            )
+                        "
+                    >
+
+                        Delete
+
+                    </button>
+
+                </td>
+
+            </tr>
+
+        `;
+
+    });
+
+}
+
+
+async function deletePath(id) {
+
+    if (
+        !confirm(
+            "Delete this path?"
+        )
+    ) {
+        return;
+    }
+
+
+    await fetch(
+        `${API}/paths/${id}`,
+        {
+            method: "DELETE"
+        }
+    );
+
+
+    showMessage(
+        "Path deleted"
+    );
+
+
+    loadPaths();
+
+}
+
+
+/* ==========================================
+   QUERIES
+========================================== */
+
+async function runQuery(endpoint) {
+
+    try {
+
+        const response =
+            await fetch(
+                `${API}/queries/${endpoint}`
+            );
+
+
+        const data =
+            await response.json();
+
+
+        displayQueryResult(data);
+
+    }
+
+    catch (error) {
+
+        showMessage(
+            "Query failed",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* ==========================================
+   QUERY BY BUILDING
+========================================== */
+
+async function queryByBuilding() {
+
+    const response =
+        await fetch(
+            `${API}/buildings`
+        );
+
+
+    const buildings =
+        await response.json();
+
+
+    const codes =
+        buildings
+            .map(
+                building =>
+                    building.code
+            )
+            .join(", ");
+
+
+    const code =
+        prompt(
+            `Enter Building Code:\nAvailable: ${codes}`
+        );
+
+
+    if (!code) {
+        return;
+    }
+
+
+    runQuery(
+        `building/${code}`
+    );
+
+}
+
+
+/* ==========================================
+   DISPLAY QUERY RESULTS
+========================================== */
+
+function displayQueryResult(data) {
+
+    const container =
+        document.getElementById(
+            "queryResult"
+        );
+
+
+    if (!data || data.length === 0) {
+
+        container.innerHTML =
+            "<p>No records found.</p>";
+
+        return;
+
+    }
+
+
+    const columns =
+        Object.keys(data[0]);
+
+
+    let html = "<table><thead><tr>";
+
+
+    columns.forEach(column => {
+
+        html += `
+            <th>
+                ${column}
+            </th>
+        `;
+
+    });
+
+
+    html += "</tr></thead><tbody>";
+
+
+    data.forEach(row => {
+
+        html += "<tr>";
+
+
+        columns.forEach(column => {
+
+            html += `
+                <td>
+                    ${row[column]}
+                </td>
+            `;
+
+        });
+
+
+        html += "</tr>";
+
+    });
+
+
+    html += "</tbody></table>";
+
+
+    container.innerHTML = html;
+
+}
+
+
+/* ==========================================
+   INITIAL LOAD
+========================================== */
+
+loadStats();
+loadBuildings();
+loadPOIs();
+loadPaths();
+loadBuildingDropdowns();
+
+</script>
+
+
+</body>
+
+</html>
